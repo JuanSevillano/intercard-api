@@ -1,0 +1,35 @@
+#!/usr/bin/env bash
+cli_log() {
+  script_name=${0##*/}
+  timestamp=$(date -u +"%Y-%m-%dT%H:%M:%SZ")
+  echo "== $script_name $timestamp $1"
+}
+
+cli_help_init() {
+    echo "
+Command: init
+
+Usage:
+    init"
+    exit 1
+}
+
+[ ! -n "$0" ] && cli_help_init
+
+export BASE_PROJECT_NAME=$1
+
+cli_log "Initializing BEGIN"
+mkdir -v -p ~/.intercard/data/mysql ~/.dats/data/redis
+
+
+cli_log "initializing END"
+export BASE_PROJECT_NAME=$(cat "$BASE_WORKDIR/config" | xargs)
+
+cli_log "Deployment START"
+
+docker-compose -f ../docker-compose.yml pull
+docker-compose -p intercard \
+-f ../docker-compose.yml \
+up -d
+
+cli_log "Deployment END"
